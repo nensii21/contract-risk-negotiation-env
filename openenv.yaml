@@ -1,0 +1,116 @@
+name: contract-risk-negotiation-env
+description: >
+  An OpenEnv environment that simulates a real-world contract risk analysis workflow.
+  An AI agent reads an email and a contract clause, identifies risks, classifies the
+  risk type, proposes a fix, and sends a professional reply. The environment provides
+  deterministic scoring based on task difficulty.
+
+actions:
+  - name: identify_risk
+    description: Identify and describe the main risk present in the contract clause.
+    input:
+      - field: content
+        type: str
+        description: A description of the identified risk.
+  - name: classify_risk_type
+    description: Classify the type of risk (e.g., financial, legal, operational, reputational).
+    input:
+      - field: content
+        type: str
+        description: The risk type classification.
+  - name: propose_fix
+    description: Propose a specific fix or amendment to address the identified risk.
+    input:
+      - field: content
+        type: str
+        description: The proposed fix for the contract clause.
+  - name: send_reply
+    description: Send a professional email reply responding to the original email.
+    input:
+      - field: content
+        type: str
+        description: The professional reply to the email sender.
+
+observations:
+  - field: email
+    type: str
+    description: The incoming email from the counterparty or internal stakeholder.
+  - field: contract_clause
+    type: str
+    description: The contract clause to be reviewed and analyzed.
+  - field: detected_risk
+    type: str
+    nullable: true
+    description: The identified risk from the contract clause (populated after identify_risk action).
+  - field: risk_type
+    type: str
+    nullable: true
+    description: The classified type of risk (populated after classify_risk_type action).
+  - field: proposed_fix
+    type: str
+    nullable: true
+    description: The proposed fix for the contract clause (populated after propose_fix action).
+  - field: history
+    type: list[str]
+    description: A chronological list of all actions taken in the current episode.
+  - field: task_description
+    type: str
+    description: A natural language description of what the agent needs to accomplish.
+
+tasks:
+  - name: easy
+    difficulty: easy
+    description: >
+      Identify the risk in a straightforward unlimited liability clause.
+      Expected: detect 'unlimited liability' as the risk.
+    scoring:
+      - condition: correct risk detection
+        points: 1.0
+
+  - name: medium
+    difficulty: medium
+    description: >
+      Identify the risk and classify its type for an auto-renewal clause.
+      Expected: detect 'auto renewal' as the risk and classify as 'financial'.
+    scoring:
+      - condition: correct risk detection
+        points: 0.5
+      - condition: correct risk type classification
+        points: 0.5
+
+  - name: hard
+    difficulty: hard
+    description: >
+      Handle an urgent email with a no-termination clause. Detect risk, propose a fix
+      containing keywords (limit, terminate, modify), and send a polite reply (please,
+      suggest, recommend).
+    scoring:
+      - condition: correct risk detection
+        points: 0.3
+      - condition: fix contains required keywords
+        points: 0.3
+      - condition: reply contains polite tone keywords
+        points: 0.4
+
+reward_function:
+  correct_detection: +0.3
+  correct_classification: +0.3
+  valid_fix: +0.3
+  good_reply: +0.1
+  step_penalty: -0.05 per step
+  invalid_action: -0.2
+  range: [0.0, 1.0]
+
+episode:
+  max_steps: 5
+  done_conditions:
+    - all required fields filled
+    - max steps reached
+
+api:
+  reset: GET /reset
+  step: POST /step
+  state: GET /state
+  tasks: GET /tasks
+  grader: GET /grader
+  baseline: GET /baseline
