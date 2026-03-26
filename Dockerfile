@@ -1,17 +1,10 @@
-# Use official Python image
-FROM python:3.12-slim
+FROM python:3.9
 
-# Set working directory
 WORKDIR /app
 
-# Copy project files
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
 COPY . .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose port (Hugging Face uses 7860)
-EXPOSE 7860
-
-# Run server
-CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
