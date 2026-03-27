@@ -1,3 +1,11 @@
+---
+title: Contract Risk Env
+emoji: 🚀
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+---
 # contract-risk-negotiation-env
 
 ## Environment Description
