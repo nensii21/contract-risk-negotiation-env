@@ -51,6 +51,9 @@ def state() -> Dict[str, Any]:
     return env.state()
 
 
+@app.get("/tasks")
+def tasks() -> Dict[str, Any]:
+    return {"tasks": list_tasks()}
 
 
 @app.get("/grader")
