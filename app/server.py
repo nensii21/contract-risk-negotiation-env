@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
-from env import ContractRiskEnv
-from tasks import list_tasks, get_task, TASKS
-from grader import grade
+from app.env import ContractRiskEnv
+from app.tasks import list_tasks, get_task, TASKS
+from app.grader import grade
 
 app = FastAPI(
     title="contract-risk-negotiation-env",
